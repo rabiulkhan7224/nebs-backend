@@ -31,9 +31,12 @@ const auth = (...rolesAndFlags: Array<TUserRole | boolean>) => {
     }
     const token = authHeader.split(' ')[1]
 
-    // Verify token
+    // Verify token and normalize payload fields
     const decoded = verifyToken(token, config.jwt_access_token_secret as string)
-    const { user_id, role, iat } = decoded
+    const payload: any = decoded || {}
+    const userId = payload.id || payload.user_id || payload.userId
+    const role = payload.role
+    const iat = payload.iat
 
     // Check if user exists (implementation depends on your user model)
     // const user = await User.isUserStatusCheckFindBy_id(user_id);
@@ -74,7 +77,14 @@ const auth = (...rolesAndFlags: Array<TUserRole | boolean>) => {
       )
     }
     // Attach user to request object
-    req.user = decoded as JwtPayload
+    // Attach normalized fields so downstream code can read `id`, `userId` or `user_id`
+    req.user = Object.assign({}, payload, {
+      id: userId,
+      userId,
+      user_id: userId,
+      role,
+      iat
+    }) as JwtPayload
     next()
   })
 }

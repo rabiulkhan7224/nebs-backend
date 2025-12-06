@@ -199,7 +199,7 @@ private formatUserResponse(user: any) {
   async getMe(userId: string) {
     const user = await User.findById(userId);
     if (!user) throw new Error('User not found');
-    return this.formatUserResponse(user);
+    return user
   }
 
   // Refresh access token using refresh token

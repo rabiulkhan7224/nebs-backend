@@ -42,13 +42,18 @@ const login: RequestHandler = catchAsync(async (req, res) => {
 
   const result = await authService.login(loginData);
 
+  res.cookie('accessToken', result.tokens.accessToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+  });
   res.cookie('refreshToken', result.tokens.refreshToken, {
     httpOnly: true,
     secure: true,
     sameSite: 'none',
     maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
   });
-
   sendResponse(res, {
     status: status.OK,
     success: true,
@@ -66,7 +71,7 @@ const login: RequestHandler = catchAsync(async (req, res) => {
  */
 const getMe: RequestHandler = catchAsync(async (req, res) => {
   // The user payload should be added to the request by the auth middleware
-  const userPayload = (req as any).user || {};
+  const userPayload = (req as any).user 
   const userId = userPayload.user_id || userPayload.userId || (req as any).userId;
 
   if (!userId) {
