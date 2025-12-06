@@ -1,9 +1,9 @@
 import { JwtPayload } from 'jsonwebtoken'
 import config from '../config'
 import AppError from '../errors/AppError'
-import { TUserRole } from '../interfaces/userRole_type'
 import catchAsync from '../utils/catchAsync'
 import { verifyToken } from '../utils/commonUtils'
+import { TUserRole } from '../interfaces/userRole_type'
 
 // initiate authentication route auth function
 const auth = (...rolesAndFlags: Array<TUserRole | boolean>) => {

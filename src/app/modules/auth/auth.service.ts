@@ -20,10 +20,10 @@ interface LoginData {
 }
 
 class AuthService {
-  // Generate a single access token
-  private generateToken(userId: string, email?: string) {
+  // Generate a single access token (optionally include role)
+  private generateToken(userId: string, email?: string, role?: string) {
     return jwt.sign(
-      { id: userId, email },
+      { id: userId, email, role },
       config.jwt_access_token_secret as jwt.Secret,
       { expiresIn: config.jwt_access_token_expires_in as jwt.SignOptions['expiresIn'] }
     );
@@ -111,7 +111,7 @@ async signup(data: SignupData) {
   */
 
   // Generate tokens (optional: you can skip JWT until verified)
-  const tokens = this.generateTokens(newUser._id.toString(), newUser.email);
+  const tokens = this.generateTokens(newUser._id.toString(), newUser.email, newUser.role);
   const userResponse = this.formatUserResponse(newUser);
 
   return {
@@ -124,9 +124,9 @@ async signup(data: SignupData) {
 }
 
   // Helper methods
-  private generateTokens(userId: string, email: string) {
+  private generateTokens(userId: string, email: string, role?: string) {
     const accessToken = jwt.sign(
-      { id: userId, email },
+      { id: userId, email, role },
       config.jwt_access_token_secret as jwt.Secret,
       { expiresIn: config.jwt_access_token_expires_in as jwt.SignOptions['expiresIn'] }
     );
@@ -186,7 +186,7 @@ private formatUserResponse(user: any) {
     const isMatch = await user.comparePassword(password);
     if (!isMatch) throw new Error("Invalid credentials");
 
-    const tokens = this.generateTokens(user._id.toString(), user.email);
+    const tokens = this.generateTokens(user._id.toString(), user.email, user.role);
     const userResponse = this.formatUserResponse(user);
 
     return {
@@ -213,7 +213,7 @@ private formatUserResponse(user: any) {
       if (!user) throw new Error('User not found');
       if (!user.isActive) throw new Error('Account is deactivated');
 
-      const newAccessToken = this.generateToken(userId.toString(), user.email);
+      const newAccessToken = this.generateToken(userId.toString(), user.email, user.role);
       return newAccessToken;
     } catch (err) {
       throw new Error('Invalid or expired refresh token');

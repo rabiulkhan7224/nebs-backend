@@ -27,9 +27,10 @@ export const getNoticeById = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const createNotice = catchAsync(async (req: Request, res: Response) => {
-  const noticeData = {
+  console.log(req.user!.id);
+    const noticeData = {
     ...req.body,
-    createdBy: req.user!._id,
+    createdBy: req.user!.id,
   };
 
   const notice = await noticeService.create(noticeData);
@@ -41,7 +42,7 @@ export const createNotice = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const updateNotice = catchAsync(async (req: Request, res: Response) => {
-  const notice = await noticeService.update(req.params.id, req.body, req.user!._id.toString());
+  const notice = await noticeService.update(req.params.id, req.body, req.user!.id.toString());
   res.json({
     success: true,
     message: "Notice updated successfully",
@@ -50,6 +51,6 @@ export const updateNotice = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const deleteNotice = catchAsync(async (req: Request, res: Response) => {
-  await noticeService.delete(req.params.id, req.user!._id.toString());
+  await noticeService.delete(req.params.id, req.user!.id.toString());
   res.json({ success: true, message: "Notice deleted successfully" });
 });

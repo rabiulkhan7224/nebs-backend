@@ -1,5 +1,6 @@
 import express, { Router } from 'express'
 import { AuthModuleRoutes } from '../modules/auth/auth.route'
+import { NoticeModuleRoutes } from '../modules/notice/notice.route'
 
 /**
  * Main router configuration
@@ -17,6 +18,10 @@ const moduleRoutes = [
   {
     path: '/auth',
     route: AuthModuleRoutes
+  },
+  {
+    path: '/notice',
+    route: NoticeModuleRoutes
   }
 ]
 
