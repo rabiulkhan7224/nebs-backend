@@ -23,6 +23,12 @@ export interface IUser extends Document {
   createdAt: Date;
   updatedAt: Date;
 
+  // Optional fields for verification / password reset
+  otp?: number;
+  otpExpiresAt?: Date;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
+
   // Instance method
   comparePassword(enteredPassword: string): Promise<boolean>;
 }
@@ -96,6 +102,23 @@ const UserSchema = new Schema<IUser>(
       sparse: true, // Important: allows null values while keeping unique constraint
       trim: true,
     },
+    // OTP and password reset fields
+    otp: {
+      type: Number,
+      select: false,
+    },
+    otpExpiresAt: {
+      type: Date,
+      select: false,
+    },
+    resetPasswordToken: {
+      type: String,
+      select: false,
+    },
+    resetPasswordExpires: {
+      type: Date,
+      select: false,
+    },
   },
   {
     timestamps: true,
@@ -126,10 +149,7 @@ UserSchema.methods.comparePassword = async function (enteredPassword: string): P
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// Ensure indexes are created (optional but recommended)
-UserSchema.index({ email: 1 });
-UserSchema.index({ username: 1 }, { unique: true, sparse: true });
-UserSchema.index({ employeeId: 1 }, { unique: true, sparse: true });
+// Indexes are defined inline on fields (unique/sparse). Removed duplicate schema.index declarations.
 
 /**
  * Export User model
