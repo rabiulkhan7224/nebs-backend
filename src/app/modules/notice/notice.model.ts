@@ -1,6 +1,6 @@
 import { Schema, model, Document, Types } from "mongoose";
 
-export type NoticeStatus = "draft" | "published" | "archived";
+export type NoticeStatus = "draft" | "published" | "archived" | "unpublished";
 export type NoticeTarget = "all" | "department" | "individual";
 
 export interface INotice extends Document {

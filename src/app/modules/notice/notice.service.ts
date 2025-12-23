@@ -10,7 +10,7 @@ interface CreateNoticeInput {
   department?: string;
   employee?: string;
   publishedAt?: Date;
-  status: "draft" | "published" | "archived";
+  status: "draft" | "published" | "archived" | "unpublished";
   attachment?: string;
   createdBy: string;
 }

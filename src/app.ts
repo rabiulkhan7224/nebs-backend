@@ -47,6 +47,7 @@ const getCorsOrigin = async (): Promise<string[]> => {
         'http://localhost:5173',
         'http://localhost:5174',
         'http://localhost:3000',
+        'https://nebs-dashboard-sigma.vercel.app'
       ]
       create_cache_into_RAM('cors_origin', value)
     }
@@ -58,6 +59,7 @@ const getCorsOrigin = async (): Promise<string[]> => {
       'http://localhost:5173',
       'http://localhost:5174',
       'http://localhost:3000',
+      'https://nebs-dashboard-sigma.vercel.app'
     ] // Fallback origins
   }
 }
@@ -66,6 +68,7 @@ const getFallbackOrigins = (): string[] => [
   'http://localhost:5173',
   'http://localhost:5174',
   'http://localhost:3000',
+  'https://nebs-dashboard-sigma.vercel.app'
 ]
 
 // Middleware setup

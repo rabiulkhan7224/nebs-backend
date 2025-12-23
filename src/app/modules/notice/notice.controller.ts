@@ -2,6 +2,7 @@
 import { Request, Response } from "express";
 import catchAsync from './../../utils/catchAsync';
 import { noticeService } from "./notice.service";
+import User from "../auth/user.model";
 
 export const getNotices = catchAsync(async (req: Request, res: Response) => {
   const page = Number(req.query.page) || 1;
@@ -53,4 +54,16 @@ export const updateNotice = catchAsync(async (req: Request, res: Response) => {
 export const deleteNotice = catchAsync(async (req: Request, res: Response) => {
   await noticeService.delete(req.params.id, req.user!.id.toString());
   res.json({ success: true, message: "Notice deleted successfully" });
+});
+
+
+export const getEmployeesForNotice = catchAsync(async (req: Request, res: Response) => {
+  const employees = await User.find(
+    { role: "employee", isActive: true }
+  ).select("employeeId firstName lastName department profilePicture");
+
+  res.json({
+    success: true,
+    data: employees,
+  });
 });

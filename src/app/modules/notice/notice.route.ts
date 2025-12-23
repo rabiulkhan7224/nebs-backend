@@ -5,6 +5,7 @@ import {
   createNotice,
   updateNotice,
   deleteNotice,
+  getEmployeesForNotice,
 } from "./notice.controller";
 
 import auth from "../../middlewares/auth";
@@ -18,6 +19,7 @@ const router = Router();
  */
 
 // Public or Protected — your choice
+router.get("/employees", getEmployeesForNotice);
 router.get("/", getNotices);
 
 // Create Notice (Admin Only)
