@@ -23,6 +23,7 @@ export interface INotice extends Document {
   employeeUser?: any;
 }
 
+
 const NoticeSchema = new Schema<INotice>(
   {
     title: {
@@ -62,7 +63,7 @@ const NoticeSchema = new Schema<INotice>(
     },
     status: {
       type: String,
-      enum: ["draft", "published", "archived"],
+      enum: ["draft", "published", "archived", "unpublished"],
       default: "draft",
     },
     createdBy: {
@@ -99,6 +100,30 @@ NoticeSchema.virtual("employeeUser", {
   foreignField: "_id",
   justOne: true,
 });
+// 🔹 Status filter
+NoticeSchema.index({ status: 1 });
+
+// 🔹 Target filter
+NoticeSchema.index({ target: 1 });
+
+// 🔹 Department filter
+NoticeSchema.index({ department: 1 });
+
+// 🔹 Published date sorting/filter
+NoticeSchema.index({ publishedAt: -1 });
+
+// 🔹 Created date fallback sorting
+NoticeSchema.index({ createdAt: -1 });
+
+// 🔹 Text search on title
+NoticeSchema.index({ title: "text" });
+
+// 🔹 Employee-based filtering
+NoticeSchema.index({ employee: 1 });
+
+// 🔹 Created by user
+NoticeSchema.index({ createdBy: 1 });
+
 
 const Notice = model<INotice>("Notice", NoticeSchema);
 export default Notice;

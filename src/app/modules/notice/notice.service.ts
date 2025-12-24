@@ -19,38 +19,66 @@ interface UpdateNoticeInput extends Partial<CreateNoticeInput> {}
 
 class NoticeService {
   // GET all notices with filters + pagination
-  async getAll(filters: any = {}, page = 1, limit = 10) {
-    const skip = (page - 1) * limit;
+ async getAll(filters: any = {}, page = 1, limit = 10) {
+  const skip = (page - 1) * limit;
+  const query: any = {};
 
-    const query: any = {};
-    if (filters.status && filters.status !== "all") query.status = filters.status;
-    if (filters.target) query.target = filters.target;
-    if (filters.department) query.department = filters.department;
-    if (filters.search) {
-      query.title = { $regex: filters.search, $options: "i" };
-    }
-
-    const notices = await Notice.find(query)
-      .populate("createdByUser", "firstName lastName profilePicture role")
-      .populate("employeeUser", "firstName lastName employeeId department")
-      .sort({ publishedAt: -1, createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean();
-
-    const total = await Notice.countDocuments(query);
-
-    return {
-      data: notices,
-      pagination: {
-        current: page,
-        pages: Math.ceil(total / limit),
-        total,
-        hasNext: page < Math.ceil(total / limit),
-        hasPrev: page > 1,
-      },
-    };
+  // Status
+  if (filters.status && filters.status !== "all") {
+    query.status = filters.status;
   }
+
+  // Target
+  if (filters.target && filters.target !== "all") {
+    query.target = filters.target;
+  }
+
+  // Department (only if target = department)
+  if (filters.target === "department" && filters.department) {
+    query.department = filters.department;
+  }
+
+  // Individual employee
+  if (filters.target === "individual" && filters.employee) {
+    query.employee = filters.employee;
+  }
+
+  // Title search
+  if (filters.search) {
+    query.title = { $regex: filters.search, $options: "i" };
+  }
+
+  // Published date (single day)
+  if (filters.publishedOn) {
+    const start = new Date(filters.publishedOn);
+    const end = new Date(filters.publishedOn);
+    end.setHours(23, 59, 59, 999);
+
+    query.publishedAt = { $gte: start, $lte: end };
+  }
+
+  const notices = await Notice.find(query)
+    .populate("createdByUser", "firstName lastName profilePicture role")
+    .populate("employeeUser", "firstName lastName employeeId department")
+    .sort({ publishedAt: -1, createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .lean();
+
+  const total = await Notice.countDocuments(query);
+
+  return {
+    data: notices,
+    pagination: {
+      current: page,
+      pages: Math.ceil(total / limit),
+      total,
+      hasNext: page < Math.ceil(total / limit),
+      hasPrev: page > 1,
+    },
+  };
+}
+
 
   // GET single notice + increment views
   async getById(id: string) {
@@ -81,13 +109,7 @@ class NoticeService {
     const notice = await Notice.findById(id);
     if (!notice) throw new Error("Notice not found");
 
-    // Only creator or admin can update
-    if (
-      notice.createdBy.toString() !== userId &&
-      !["admin", "hr"].includes((global as any).user?.role)
-    ) {
-      throw new Error("Not authorized to update this notice");
-    }
+    
 
     Object.assign(notice, {
       ...data,
@@ -104,12 +126,12 @@ class NoticeService {
     const notice = await Notice.findById(id);
     if (!notice) throw new Error("Notice not found");
 
-    if (
-      notice.createdBy.toString() !== userId &&
-      !["admin", "hr"].includes((global as any).user?.role)
-    ) {
-      throw new Error("Not authorized to delete this notice");
-    }
+    // if (
+    //   notice.createdBy.toString() !== userId &&
+    //   !["admin", "hr"].includes((global as any).user?.role)
+    // ) {
+    //   throw new Error("Not authorized to delete this notice");
+    // }
 
     await Notice.findByIdAndDelete(id);
     return { message: "Notice deleted successfully" };
